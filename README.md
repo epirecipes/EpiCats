@@ -4,8 +4,8 @@ Applied category theory applied to epidemiological models
 # Examples
 
 ## Petri nets
-- [SIR model composed from infection and recovery submodels](https://github.com/epirecipes/EpiCats/pn_compose_sir/pn_compose_sir.md)
-- [SIR model stratified by risk](https://github.com/epirecipes/EpiCats/pn_stratify_multigroup/pn_stratify_multigroup.md)
+- [SIR model composed from infection and recovery submodels](https://github.com/epirecipes/EpiCats/blob/main/pn_compose_sir/pn_compose_sir.ipynb)
+- [SIR model stratified by risk](https://github.com/epirecipes/EpiCats/blob/main/pn_stratify_multigroup/pn_stratify_multigroup.ipynb)
 
 # Glossary of applied category theory applied to epidemiological models
 
