@@ -13,9 +13,7 @@ This is a repository for applying category theory to epidemiological models. The
 
 ## Glossary of applied category theory applied to epidemiological models
 
-ACT has a lot of terminology that may be unfamiliar; in the table below, terminology in ACT is mapped to concepts in epidemiological models.```bash
-quarto render {FILENAME_OF_QMD} --to ipynb
-```
+ACT has a lot of terminology that may be unfamiliar; in the table below, terminology in ACT is mapped to concepts in epidemiological models.
 
 | *Term*                                    | *Definition*                                                                                                                                    | *Example in epidemiology*                                                                                                                                                |
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
