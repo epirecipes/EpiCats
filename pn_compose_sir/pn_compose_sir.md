@@ -92,7 +92,7 @@ We can obtain a GraphViz representation of the labelled Petri net using
 Graph(si_lpn)
 ```
 
-::: {.cell-output .cell-output-display execution_count="8"}
+::: {.cell-output .cell-output-display execution_count="41"}
 ![](pn_compose_sir_files/figure-markdown/cell-7-output-1.svg)
 :::
 :::
@@ -109,7 +109,7 @@ ir_lpn = dom(ir_acst)
 Graph(ir_lpn)
 ```
 
-::: {.cell-output .cell-output-display execution_count="9"}
+::: {.cell-output .cell-output-display execution_count="42"}
 ![](pn_compose_sir_files/figure-markdown/cell-8-output-1.svg)
 :::
 :::
@@ -141,7 +141,7 @@ sir_smc = oapply(sir_uwd, Dict(
 ))
 ```
 
-::: {.cell-output .cell-output-display execution_count="11"}
+::: {.cell-output .cell-output-display execution_count="44"}
     StructuredMulticospan{Catlab.CategoricalAlgebra.StructuredCospans.DiscreteACSet{AnonACSet{TypeLevelBasicSchema{Symbol, Tuple{:S}, Tuple{}, Tuple{:Name}, Tuple{(:sname, :S, :Name)}}, Tuple{Symbol}, Catlab.LVectors.LVector{(:S,), Int64}, NamedTuple{(:sname,), Tuple{Catlab.ColumnImplementations.DenseColumn{Symbol, Vector{Symbol}}}}}, LabelledPetriNet}, Multicospan{LabelledPetriNet, StructTightACSetTransformation{TypeLevelBasicSchema{Symbol, Tuple{:T, :S, :I, :O}, Tuple{(:it, :I, :T), (:is, :I, :S), (:ot, :O, :T), (:os, :O, :S)}, Tuple{:Name}, Tuple{(:tname, :T, :Name), (:sname, :S, :Name)}}, NamedTuple{(:T, :S, :I, :O), NTuple{4, Catlab.CategoricalAlgebra.FinSets.FinDomFunctionVector{Int64, Vector{Int64}, Catlab.CategoricalAlgebra.FinSets.FinSetInt}}}, LabelledPetriNet, LabelledPetriNet}, Vector{StructTightACSetTransformation{TypeLevelBasicSchema{Symbol, Tuple{:T, :S, :I, :O}, Tuple{(:it, :I, :T), (:is, :I, :S), (:ot, :O, :T), (:os, :O, :S)}, Tuple{:Name}, Tuple{(:tname, :T, :Name), (:sname, :S, :Name)}}, NamedTuple{(:T, :S, :I, :O), NTuple{4, Catlab.CategoricalAlgebra.FinSets.FinDomFunctionVector{Int64, Vector{Int64}, Catlab.CategoricalAlgebra.FinSets.FinSetInt}}}, LabelledPetriNet, LabelledPetriNet}}}, Vector{AnonACSet{TypeLevelBasicSchema{Symbol, Tuple{:S}, Tuple{}, Tuple{:Name}, Tuple{(:sname, :S, :Name)}}, Tuple{Symbol}, Catlab.LVectors.LVector{(:S,), Int64}, NamedTuple{(:sname,), Tuple{Catlab.ColumnImplementations.DenseColumn{Symbol, Vector{Symbol}}}}}}}(Multicospan{LabelledPetriNet, StructTightACSetTransformation{TypeLevelBasicSchema{Symbol, Tuple{:T, :S, :I, :O}, Tuple{(:it, :I, :T), (:is, :I, :S), (:ot, :O, :T), (:os, :O, :S)}, Tuple{:Name}, Tuple{(:tname, :T, :Name), (:sname, :S, :Name)}}, NamedTuple{(:T, :S, :I, :O), NTuple{4, Catlab.CategoricalAlgebra.FinSets.FinDomFunctionVector{Int64, Vector{Int64}, Catlab.CategoricalAlgebra.FinSets.FinSetInt}}}, LabelledPetriNet, LabelledPetriNet}, Vector{StructTightACSetTransformation{TypeLevelBasicSchema{Symbol, Tuple{:T, :S, :I, :O}, Tuple{(:it, :I, :T), (:is, :I, :S), (:ot, :O, :T), (:os, :O, :S)}, Tuple{:Name}, Tuple{(:tname, :T, :Name), (:sname, :S, :Name)}}, NamedTuple{(:T, :S, :I, :O), NTuple{4, Catlab.CategoricalAlgebra.FinSets.FinDomFunctionVector{Int64, Vector{Int64}, Catlab.CategoricalAlgebra.FinSets.FinSetInt}}}, LabelledPetriNet, LabelledPetriNet}}}(LabelledPetriNet:
       T = 1:2
       S = 1:3
@@ -171,7 +171,7 @@ sir_lpn = apex(sir_smc)
 Graph(sir_lpn)
 ```
 
-::: {.cell-output .cell-output-display execution_count="12"}
+::: {.cell-output .cell-output-display execution_count="45"}
 ![](pn_compose_sir_files/figure-markdown/cell-11-output-1.svg)
 :::
 :::
@@ -195,7 +195,7 @@ arrays.
 u0 = @LArray [990.0, 10.0, 0.0] Tuple(snames(sir_lpn))
 ```
 
-::: {.cell-output .cell-output-display execution_count="14"}
+::: {.cell-output .cell-output-display execution_count="47"}
     3-element LArray{Float64, 1, Vector{Float64}, (:S, :I, :R)}:
      :S => 990.0
      :I => 10.0
@@ -208,7 +208,7 @@ u0 = @LArray [990.0, 10.0, 0.0] Tuple(snames(sir_lpn))
 p = @LArray [0.5/1000, 0.25] Tuple(tnames(sir_lpn))
 ```
 
-::: {.cell-output .cell-output-display execution_count="15"}
+::: {.cell-output .cell-output-display execution_count="48"}
     2-element LArray{Float64, 1, Vector{Float64}, (:β, :γ)}:
      :β => 0.0005
      :γ => 0.25
@@ -231,7 +231,7 @@ sir_sol = solve(sir_prob, Rosenbrock32())
 plot(sir_sol)
 ```
 
-::: {.cell-output .cell-output-display execution_count="17"}
+::: {.cell-output .cell-output-display execution_count="50"}
 ![](pn_compose_sir_files/figure-markdown/cell-16-output-1.svg)
 :::
 :::
