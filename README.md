@@ -9,6 +9,7 @@ This is a repository for applying category theory to epidemiological models. The
 
 ### Petri nets
 - [SIR model composed from infection and recovery submodels](https://github.com/epirecipes/EpiCats/blob/main/pn_compose_sir/pn_compose_sir.ipynb)
+- [The linear chain trick](https://github.com/epirecipes/EpiCats/blob/main/pn_compose_sir_stages/pn_compose_sir_stages.ipynb)
 - [SIR model stratified by risk](https://github.com/epirecipes/EpiCats/blob/main/pn_stratify_multigroup/pn_stratify_multigroup.ipynb)
 
 ## Glossary of applied category theory applied to epidemiological models
@@ -33,7 +34,9 @@ ACT has a lot of terminology that may be unfamiliar; in the table below, termino
 
 ## Contributing
 
-We welcome contributions to this repository. Each example should be placed in its own directory, as a Quarto (`.qmd`) file. The Quarto file should be rendered to (at least) a Jupyter notebook and placed in the same directory. The Jupyter notebook should be named to match the directory name. For example, the directory `pn_compose_sir` contains the Quarto file `pn_compose_sir.qmd` and the Jupyter notebook `pn_compose_sir.ipynb`. The `README.md` in the root directory should contain a link to the rendered Jupyter notebook.
+We welcome contributions to this repository. Each example should be placed in its own directory, as a Quarto (`.qmd`) file. To assist in conversion to Pluto notebooks, please avoid multiple definitions within a single cell (wrapping a cell with `begin` and `end` if this is necessary).
+
+The Quarto file should be rendered to (at least) a Jupyter notebook and placed in the same directory, to allow the input and output to be displayed in GitHub. The Jupyter notebook should be named to match the directory name. For example, the directory `pn_compose_sir` contains the Quarto file `pn_compose_sir.qmd` and the Jupyter notebook `pn_compose_sir.ipynb`. The `README.md` in the root directory should contain a link to the rendered Jupyter notebook.
 
 To render Quarto files to Jupyter notebooks, install Quarto and run the following command in the example directory (where `{FILENAME_OF_QMD}` is the name of the Quarto file):
 
@@ -41,11 +44,7 @@ To render Quarto files to Jupyter notebooks, install Quarto and run the followin
 quarto render {FILENAME_OF_QMD} --to ipynb
 ```
 
-Ideally, Quarto files should be rendered to Markdown (`markdown`), PDF (`pdf`), Word (`docx`) in addition to the Jupyter notebook. A recent version of Quarto is needed to render to all formats.
-
-```bash
-quarto render {FILENAME_OF_QMD} --to all
-```
+In addition, the Jupyter notebooks can be rendered to Pluto notebooks using [this tool](https://observablehq.com/@olivier_plas/pluto-jl-jupyter-conversion) to create a plain Julia script. This script may need to be edited (e.g. to avoid multiple definitions within a single cell) in order to run properly.
 
 ## License
 
