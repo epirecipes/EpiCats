@@ -139,3 +139,10 @@ sir_smc = oapply(sir_uwd, Dict(
 ))
 sir_lpn = apex(sir_smc)
 to_graphviz(sir_lpn)
+
+sir_uwd[incident(sir_uwd, :si, (:box, :name)), (:junction,:variable)]
+sir_uwd[incident(sir_uwd, :ir, (:box, :name)), (:junction,:variable)]
+
+sir_pn = LabelledPetriNet((:S,:I,:R), :inf=>((:S,:I)=>(:I,:I)), :rec=>(:I=>:R))
+legs(Open(sir_pn, [:I, :R]))
+legs(Open(sir_pn, [[:I], [:R]]))
