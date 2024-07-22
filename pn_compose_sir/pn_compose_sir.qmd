@@ -1,5 +1,13 @@
-# Composing an SIR model from individual transitions using AlgebraicPetri.jl
-Simon Frost (@sdwfrost), 2023-06-13
+---
+title: Composing an SIR model from individual transitions using AlgebraicPetri.jl
+date: 2023-06-13
+author: Simon Frost (@sdwfrost)
+format:
+    html: default
+    docx: default
+    gfm: default
+    pdf: default
+---
 
 ## Introduction
 
@@ -10,7 +18,7 @@ This example serves as a 'Hello World' to composing Petri net models, where mode
 ```{julia}
 using AlgebraicPetri,AlgebraicPetri.TypedPetri
 using Catlab, Catlab.CategoricalAlgebra, Catlab.Programs
-using Catlab.WiringDiagrams
+using Catlab.WiringDiagrams, Catlab.Graphics
 using AlgebraicDynamics.UWDDynam
 using LabelledArrays
 using OrdinaryDiffEq
@@ -51,10 +59,10 @@ To obtain the labelled Petri net, we extract the domain of the `ACSetTransformat
 si_lpn = dom(si_acst);
 ```
 
-We can obtain a GraphViz representation of the labelled Petri net using `Graph`.
+We can obtain a GraphViz representation of the labelled Petri net using `to_graphviz`.
 
 ```{julia}
-Graph(si_lpn)
+to_graphviz(si_lpn)
 ```
 
 We repeat for the recovery (`I` to `R`) transition.
@@ -65,7 +73,7 @@ ir_uwd = @relation (I, R) where (I::Pop, R::Pop) begin
 end
 ir_acst = oapply_typed(epi_lpn, ir_uwd, [:γ])
 ir_lpn = dom(ir_acst)
-Graph(ir_lpn)
+to_graphviz(ir_lpn)
 ```
 
 To glue the SI and IR models together to make an SIR model, we first define an undirected wiring diagram which contains all our states, and two transitions.
@@ -83,14 +91,14 @@ We then create a `StructuredMulticospan` using this wiring diagram, telling `oap
 sir_smc = oapply(sir_uwd, Dict(
     :si => Open(si_lpn),
     :ir => Open(ir_lpn),
-))
+));
 ```
 
 We extract the labelled Petri net by extracting the object that is the codomain of all the legs, using the `apex` function.
 
 ```{julia}
 sir_lpn = apex(sir_smc)
-Graph(sir_lpn)
+to_graphviz(sir_lpn)
 ```
 
 ## Running the model

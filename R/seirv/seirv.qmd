@@ -64,7 +64,6 @@ pandemic_influenza <- infection(
   preinfectious_period = 3,
   infectious_period = 7
 )
-
 pandemic_influenza
 ```
 

@@ -1,5 +1,13 @@
-# Stratifying an SIR model by risk group using AlgebraicPetri.jl
-Simon Frost (@sdwfrost), 2023-06-13
+---
+title: Stratifying an SIR model by risk group using AlgebraicPetri.jl
+date: 2023-06-13
+author: Simon Frost (@sdwfrost)
+format:
+    html: default
+    docx: default
+    gfm: default
+    pdf: default
+---
 
 ## Introduction
 
@@ -27,7 +35,7 @@ epi_transitions = LabelledPetriNet(
   :infection=>((:Pop, :Pop)=>(:Pop, :Pop)),
   :recovery=>(:Pop=>:Pop)
 )
-Graph(epi_transitions)
+to_graphviz(epi_transitions)
 ```
 
 We create a labelled Petri net of the SIR model using the above transitions (or alternatively, we could compose from infection and recovery submodels).
@@ -39,7 +47,7 @@ sir_uwd = @relation () where (S::Pop, I::Pop, R::Pop) begin
 end
 sir_acst = oapply_typed(epi_transitions, sir_uwd, [:β , :γ])
 sir_lpn = dom(sir_acst)
-Graph(sir_lpn)
+to_graphviz(sir_lpn)
 ```
 
 We then define a second model with two groups with different contact rates. This also has infection and recovery terms defined in terms of within- and between-group interactions.
@@ -55,7 +63,7 @@ risk_uwd = @relation () where (H::Pop, L::Pop) begin
 end
 risk_acst = oapply_typed(epi_transitions, risk_uwd, [:HH, :HL, :LH, :LL, :H, :L])
 risk_lpn = dom(risk_acst)
-Graph(risk_lpn)
+to_graphviz(risk_lpn)
 ```
 
 We create a stratified model by using a typed product between the SIR model and the risk model, to generate an `ACSetTransformation`, from which we subsequently extract a labelled Petri net.
@@ -63,7 +71,7 @@ We create a stratified model by using a typed product between the SIR model and 
 ```{julia}
 sir_risk_acst = typed_product(sir_acst, risk_acst)
 sir_risk_lpn = dom(sir_risk_acst)
-Graph(sir_risk_lpn)
+to_graphviz(sir_risk_lpn)
 ```
 
 The state names of the resulting stratified model are tuples of symbols:
@@ -76,7 +84,7 @@ The solvers in `OrdinaryDiffEq.jl` do not work with these state names, so we use
 
 ```{julia}
 sir_risk_lpn_flatlabels = flatten_labels(sir_risk_lpn)
-Graph(sir_risk_lpn_flatlabels)
+to_graphviz(sir_risk_lpn_flatlabels)
 ```
 
 ## Running the model

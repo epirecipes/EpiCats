@@ -1,5 +1,13 @@
-# Applying the linear chain trick using AlgebraicPetri.jl
-Simon Frost (@sdwfrost) and Sean L. Wu (@slwu89), 2023-06-14
+---
+title: Applying the linear chain trick using AlgebraicPetri.jl
+date: 2023-06-14
+author: Simon Frost (@sdwfrost) and Sean L. Wu (@slwu89)
+format:
+    html: default
+    docx: default
+    gfm: default
+    pdf: default
+---
 
 ## Introduction
 
@@ -9,7 +17,9 @@ This example extends the [basic SIR model](https://github.com/epirecipes/EpiCats
 
 ```{julia}
 using AlgebraicPetri,AlgebraicPetri.TypedPetri
-using Catlab
+using Catlab, Catlab.CategoricalAlgebra, Catlab.Programs
+using Catlab.WiringDiagrams, Catlab.Graphics
+using AlgebraicDynamics.UWDDynam
 using LabelledArrays
 using OrdinaryDiffEq
 using Plots
