@@ -10,7 +10,7 @@ This is a repository for applying category theory to epidemiological models. The
 ### Petri nets
 - [SIR model composed from infection and recovery submodels](https://github.com/epirecipes/EpiCats/blob/main/pn_compose_sir/pn_compose_sir.md)
 - [The linear chain trick](https://github.com/epirecipes/EpiCats/blob/main/pn_compose_sir_stages/pn_compose_sir_stages.md)
-- [SIR model stratified by risk](https://github.com/epirecipes/EpiCats/blob/main/pn_stratify_multigroup/pn_stratify_multigroup.md)
+- [SIR model stratified by two risk groups](https://github.com/epirecipes/EpiCats/blob/main/pn_stratify_two_risk_groups/pn_stratify_two_risk_groups.md)
 
 ## Glossary of applied category theory applied to epidemiological models
 

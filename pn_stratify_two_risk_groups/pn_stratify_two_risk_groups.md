@@ -1,12 +1,16 @@
-# Stratifying an SIR model by risk group using AlgebraicPetri.jl
+# Stratifying an SIR model by two risk groups using AlgebraicPetri.jl
 Simon Frost (@sdwfrost)
 2023-06-13
 
 ## Introduction
 
 This example serves as a ‘Hello World’ to stratifying Petri net models,
-where a coarse model is stratified by another model - in this case, two
+where an SIR model is stratified by another model - in this case, two
 risk groups, `H` and `L`, with high and low contact rates respectively.
+The stratification is done using two manually specified models. At the
+end, we use Catlab’s imperative interface to construct the risk group
+model programmatically; while this is more useful for models with many
+groups, it serves as a good test case.
 
 ## Libraries
 
@@ -39,7 +43,7 @@ epi_transitions = LabelledPetriNet(
 to_graphviz(epi_transitions)
 ```
 
-![](pn_stratify_multigroup_files/figure-commonmark/cell-3-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-3-output-1.svg)
 
 We create a labelled Petri net of the SIR model using the above
 transitions (or alternatively, we could compose from infection and
@@ -55,7 +59,7 @@ sir_lpn = dom(sir_acst)
 to_graphviz(sir_lpn)
 ```
 
-![](pn_stratify_multigroup_files/figure-commonmark/cell-4-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-4-output-1.svg)
 
 We then define a second model with two groups with different contact
 rates. This also has infection and recovery terms defined in terms of
@@ -75,7 +79,7 @@ risk_lpn = dom(risk_acst)
 to_graphviz(risk_lpn)
 ```
 
-![](pn_stratify_multigroup_files/figure-commonmark/cell-5-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-5-output-1.svg)
 
 We create a stratified model by using a typed product between the SIR
 model and the risk model, to generate an `ACSetTransformation`, from
@@ -87,7 +91,7 @@ sir_risk_lpn = dom(sir_risk_acst)
 to_graphviz(sir_risk_lpn)
 ```
 
-![](pn_stratify_multigroup_files/figure-commonmark/cell-6-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-6-output-1.svg)
 
 The state names of the resulting stratified model are tuples of symbols:
 
@@ -112,7 +116,7 @@ sir_risk_lpn_flatlabels = flatten_labels(sir_risk_lpn)
 to_graphviz(sir_risk_lpn_flatlabels)
 ```
 
-![](pn_stratify_multigroup_files/figure-commonmark/cell-8-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-8-output-1.svg)
 
 ## Running the model
 
@@ -170,4 +174,77 @@ sir_risk_sol = solve(sir_risk_prob, Rosenbrock32());
 plot(sir_risk_sol, linecolor=[:blue :red :green], linestyle=[:solid :solid :solid :dash :dash :dash])
 ```
 
-![](pn_stratify_multigroup_files/figure-commonmark/cell-13-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-13-output-1.svg)
+
+## Automating the generation of risk groups
+
+We can also build the risk model using Catlab’s imperative interface.
+
+``` julia
+function make_risk_groups()
+    # Start with a blank UWD with 2 populations
+    uwd = RelationDiagram(repeat([:Pop], 2))
+    # Specify the names of the groups
+    names = ["H", "L"]
+    # Build junctions (just a `Dict`), with the side effect of updating the UWD
+    # `junctions` will be as follows
+    # Dict{Symbol, Int64} with 2 entries:
+    #   :H => 1
+    #   :L => 2
+    junctions = Dict(begin
+        variable = Symbol(names[i])
+        junction = add_junction!(uwd, :Pop, variable=variable)
+        set_junction!(uwd, port, junction, outer=true)
+        variable => junction
+    end for (i, port) in enumerate(ports(uwd, outer=true)))
+    
+    # This generates all combinations of the keys
+    # Here, this will be:
+    # 2×2 Matrix{Tuple{Symbol, Symbol}}:
+    #  (:H, :H)  (:H, :L)
+    #  (:L, :H)  (:L, :L)
+    pairs = collect(Iterators.product(keys(junctions), keys(junctions)))
+    # This creates an empty vector to store the transition names in
+    tnames = Vector{Symbol}(undef,0)
+    ## Cycle through pairs and add boxes for infection
+    for pair in pairs
+        # We need 4 entries in the tuple as :infection is defined as infection(S, I, I, I)
+        # So for the first pair, ins_outs = (:H, :H, :H, :H)
+        ins_outs = (pair[1], pair[2], pair[1], pair[2])
+        # In the below, [junction_type(uwd, junctions[p]) for p in ins_outs] is just a vector of 4 :Pop
+        box = add_box!(uwd, [junction_type(uwd, junctions[p]) for p in ins_outs], name=:infection)
+        # The below loops through zip((:H, :H, :H, :H), [1, 2, 3, 4])
+        for (rgn, port) in zip(ins_outs, ports(uwd, box))
+            set_junction!(uwd, port, junctions[rgn])
+        end
+        # This adds the names (as `Symbol`s) to the vector of transition names
+        push!(tnames,Symbol("$(pair[1])$(pair[2])"))
+    end
+    ## Generate an ACSet transformation using the above `epi_transitions`
+    act = oapply_typed(epi_transitions, uwd, tnames)
+    ## Add recovery within groups
+    act = add_reflexives(act, repeat([[:recovery]], 2), epi_transitions)
+    return act
+end;
+```
+
+We can now generate a `LabelledPetriNet` as follows.
+
+``` julia
+risk_automated_acst = make_risk_groups()
+risk_automated_lpn = dom(risk_automated_acst)
+to_graphviz(risk_automated_lpn)
+```
+
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-15-output-1.svg)
+
+We stratify the SIR model by the risk model using `typed_product`, as
+before.
+
+``` julia
+sir_risk_automated_acst = typed_product(sir_acst, risk_automated_acst)
+sir_risk_automated_lpn = dom(sir_risk_automated_acst)
+to_graphviz(sir_risk_automated_lpn)
+```
+
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-16-output-1.svg)
