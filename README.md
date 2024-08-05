@@ -11,6 +11,7 @@ This is a repository for applying category theory to epidemiological models. The
 - [SIR model composed from infection and recovery submodels](https://github.com/epirecipes/EpiCats/blob/main/pn_compose_sir/pn_compose_sir.md)
 - [The linear chain trick](https://github.com/epirecipes/EpiCats/blob/main/pn_compose_sir_stages/pn_compose_sir_stages.md)
 - [SIR model stratified by two risk groups](https://github.com/epirecipes/EpiCats/blob/main/pn_stratify_two_risk_groups/pn_stratify_two_risk_groups.md)
+- [SEIRV model stratified by age, replicating `model_default` from the R `epidemics` package](https://github.com/epirecipes/EpiCats/blob/main/pn_stratify_ageclasses/pn_stratify_ageclasses.md)
 
 ## Glossary of applied category theory applied to epidemiological models
 

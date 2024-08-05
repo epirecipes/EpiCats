@@ -71,19 +71,26 @@ risk_uwd = @relation () where (H::Pop, L::Pop) begin
     infection(H,L,H,L) # Infection of S_H by I_L
     infection(L,H,L,H) # Infection of S_L by I_H
     infection(L,L,L,L) # Within L infection
-    recovery(H,H) # H recovery
-    recovery(L,L) # L recovery
 end
-risk_acst = oapply_typed(epi_transitions, risk_uwd, [:HH, :HL, :LH, :LL, :H, :L])
-risk_lpn = dom(risk_acst)
-to_graphviz(risk_lpn)
+risk_acst = oapply_typed(epi_transitions, risk_uwd, [:HH, :HL, :LH, :LL])
 ```
 
-![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-5-output-1.svg)
+    ACSetTransformation((T = FinFunction([1, 1, 1, 1], 4, 2), S = FinFunction([1, 1], 2, 1), I = FinFunction([1, 2, 1, 2, 1, 2, 1, 2], 8, 3), O = FinFunction([1, 2, 1, 2, 1, 2, 1, 2], 8, 3), Name = LooseVarFunction{Symbol, Symbol}(FinDomFunction(Union{AttrVar, Symbol}[], FinSet(0), TypeSet(Union{AttrVar, Symbol})), SetFunction(#10, TypeSet(Symbol), TypeSet(Symbol)), FinSet(0))), LabelledPetriNet {T:4, S:2, I:8, O:8, Name:0}, LabelledPetriNet {T:2, S:1, I:3, O:3, Name:0})
 
 We create a stratified model by using a typed product between the SIR
 model and the risk model, to generate an `ACSetTransformation`, from
 which we subsequently extract a labelled Petri net.
+
+``` julia
+## Add recovery within groups
+new_tnames = [dom(risk_acst)[:tname]; dom(risk_acst)[:sname]]
+risk_acst = add_reflexives(risk_acst, repeat([[:recovery]], 2), epi_transitions)
+dom(risk_acst)[:tname] = new_tnames
+risk_lpn = dom(risk_acst)
+to_graphviz(risk_lpn)
+```
+
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-6-output-1.svg)
 
 ``` julia
 sir_risk_acst = typed_product(sir_acst, risk_acst)
@@ -91,7 +98,7 @@ sir_risk_lpn = dom(sir_risk_acst)
 to_graphviz(sir_risk_lpn)
 ```
 
-![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-6-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-7-output-1.svg)
 
 The state names of the resulting stratified model are tuples of symbols:
 
@@ -116,7 +123,7 @@ sir_risk_lpn_flatlabels = flatten_labels(sir_risk_lpn)
 to_graphviz(sir_risk_lpn_flatlabels)
 ```
 
-![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-8-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-9-output-1.svg)
 
 ## Running the model
 
@@ -174,7 +181,7 @@ sir_risk_sol = solve(sir_risk_prob, Rosenbrock32());
 plot(sir_risk_sol, linecolor=[:blue :red :green], linestyle=[:solid :solid :solid :dash :dash :dash])
 ```
 
-![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-13-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-14-output-1.svg)
 
 ## Automating the generation of risk groups
 
@@ -222,8 +229,6 @@ function make_risk_groups()
     end
     ## Generate an ACSet transformation using the above `epi_transitions`
     act = oapply_typed(epi_transitions, uwd, tnames)
-    ## Add recovery within groups
-    act = add_reflexives(act, repeat([[:recovery]], 2), epi_transitions)
     return act
 end;
 ```
@@ -232,11 +237,22 @@ We can now generate a `LabelledPetriNet` as follows.
 
 ``` julia
 risk_automated_acst = make_risk_groups()
+risk_automated_acst_tnames = dom(risk_automated_acst)[:tname]
+risk_automated_acst_snames = dom(risk_automated_acst)[:sname]
+## Add recovery within groups
+risk_automated_acst = add_reflexives(risk_automated_acst, repeat([[:recovery]], 2), epi_transitions)
+for s in risk_automated_acst_snames
+    push!(risk_automated_acst_tnames,s)
+end
+```
+
+``` julia
+dom(risk_automated_acst)[:tname] = risk_automated_acst_tnames
 risk_automated_lpn = dom(risk_automated_acst)
 to_graphviz(risk_automated_lpn)
 ```
 
-![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-15-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-17-output-1.svg)
 
 We stratify the SIR model by the risk model using `typed_product`, as
 before.
@@ -247,4 +263,4 @@ sir_risk_automated_lpn = dom(sir_risk_automated_acst)
 to_graphviz(sir_risk_automated_lpn)
 ```
 
-![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-16-output-1.svg)
+![](pn_stratify_two_risk_groups_files/figure-commonmark/cell-18-output-1.svg)

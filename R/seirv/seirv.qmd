@@ -54,26 +54,21 @@ uk_population <- population(
   demography_vector = demography_vector,
   initial_conditions = initial_conditions
 )
-```
-
-```{r}
-# simulate a pandemic, with an R0,
-# an infectious period, and an pre-infectious period
-pandemic_influenza <- infection(
-  r0 = 1.5,
-  preinfectious_period = 3,
-  infectious_period = 7
-)
-pandemic_influenza
+uk_population
 ```
 
 ```{r}
 # run an epidemic model using `epidemic()`
-system.time(output <- epidemic(
-  model = "default",
-  population = uk_population,
-  infection = pandemic_influenza,
-  time_end = 600, increment = 1.0
+system.time(output <- model_default(
+  population=uk_population,
+  transmission_rate = 1.3/7,
+  infectiousness_rate = 1/2,
+  recovery_rate = 1/7,
+  intervention = NULL,
+  vaccination = NULL,
+  time_dependence = NULL,
+  time_end = 600,
+  increment = 1.0
 ))
 ```
 
