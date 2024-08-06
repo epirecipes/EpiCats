@@ -1,12 +1,14 @@
 ---
-title: Stratifying an SIR model by age group using AlgebraicPetri.jl
+title: Stratifying an SEIR model by age group using AlgebraicPetri.jl
 date: 2024-07-22
 author: Simon Frost (@sdwfrost)
 format:
-    html: default
-    docx: default
-    gfm: default
-    pdf: default
+  html:
+    fig-format: png
+  docx: default
+  gfm:
+    fig-format: png
+  pdf: default
 ---
 
 ## Introduction
@@ -16,14 +18,16 @@ This example serves as an extension to the 'Hello World' to stratifying Petri ne
 ## Libraries
 
 ```{julia}
-using AlgebraicPetri,AlgebraicPetri.TypedPetri
+using AlgebraicPetri, AlgebraicPetri.TypedPetri, AlgebraicPetri.BilayerNetworks
 using Catlab, Catlab.CategoricalAlgebra, Catlab.Programs
 using Catlab.WiringDiagrams, Catlab.Graphics
 using AlgebraicDynamics.UWDDynam
 using OrdinaryDiffEq
+using ModelingToolkit
 using LinearAlgebra
 using LabelledArrays
 using Plots
+using Latexify
 ```
 
 ## Transitions
@@ -99,7 +103,7 @@ end;
 K = 3
 age_acst = make_age_classes(K)
 age_lpn = dom(age_acst)
-to_graphviz(age_lpn)
+to_graphviz(age_lpn, prog="circo")
 ```
 
 ## Composing the models
@@ -110,6 +114,20 @@ The age model already has `:infection`, but not `:exposure` or `:recovery`, so w
 seir_acst_augmented = add_reflexives(seir_acst, repeat([[:strata]], 4), epi_transitions)
 age_acst_augmented = add_reflexives(age_acst, repeat([[:exposure, :recovery]], K), epi_transitions);
 ```
+
+We can now visualize how the disease compartments will be stratified.
+
+```{julia}
+to_graphviz(dom(seir_acst_augmented))
+```
+
+We can also visualize the transitions in the age model.
+
+```{julia}
+to_graphviz(dom(age_acst_augmented), prog="circo")
+```
+
+We rename the transitions with their group, to avoid the use of the same name in the transitions for different age groups.
 
 ```{julia}
 age_acst_tnames = dom(age_acst)[:tname]
@@ -122,7 +140,7 @@ end
 dom(age_acst_augmented)[:tname] = age_acst_tnames;
 ```
 
-We can now compose the models using `typed_product`.
+We compose the models using `typed_product`.
 
 ```{julia}
 seir_age_acst = typed_product(seir_acst_augmented, age_acst_augmented)
@@ -139,7 +157,21 @@ We flatten the labels to allow the model to be lowered into an ODE.
 
 ```{julia}
 seir_age_lpn_flatlabels = flatten_labels(seir_age_lpn)
-to_graphviz(seir_age_lpn_flatlabels)
+to_graphviz(seir_age_lpn_flatlabels, prog="dot")
+```
+
+The transitions may be easier to inspect graphically if we represent the model as a bilayer network.
+
+```{julia}
+seir_age_bn = LabelledBilayerNetwork()
+migrate!(seir_age_bn, seir_age_lpn_flatlabels)
+to_graphviz(seir_age_bn)
+```
+
+We can also retrieve the equations from the bilayer network.
+
+```{julia}
+latexify(ModelingToolkit.equations(ODESystem(seir_age_bn)))
 ```
 
 ## Running the model

@@ -1,4 +1,4 @@
-# Stratifying an SIR model by age group using AlgebraicPetri.jl
+# Stratifying an SEIR model by age group using AlgebraicPetri.jl
 Simon Frost (@sdwfrost)
 2024-07-22
 
@@ -15,14 +15,16 @@ the course of the epidemic simulation.
 ## Libraries
 
 ``` julia
-using AlgebraicPetri,AlgebraicPetri.TypedPetri
+using AlgebraicPetri, AlgebraicPetri.TypedPetri, AlgebraicPetri.BilayerNetworks
 using Catlab, Catlab.CategoricalAlgebra, Catlab.Programs
 using Catlab.WiringDiagrams, Catlab.Graphics
 using AlgebraicDynamics.UWDDynam
 using OrdinaryDiffEq
+using ModelingToolkit
 using LinearAlgebra
 using LabelledArrays
 using Plots
+using Latexify
 ```
 
 ## Transitions
@@ -109,7 +111,7 @@ end;
 K = 3
 age_acst = make_age_classes(K)
 age_lpn = dom(age_acst)
-to_graphviz(age_lpn)
+to_graphviz(age_lpn, prog="circo")
 ```
 
 ![](pn_stratify_ageclasses_files/figure-commonmark/cell-6-output-1.svg)
@@ -124,6 +126,25 @@ seir_acst_augmented = add_reflexives(seir_acst, repeat([[:strata]], 4), epi_tran
 age_acst_augmented = add_reflexives(age_acst, repeat([[:exposure, :recovery]], K), epi_transitions);
 ```
 
+We can now visualize how the disease compartments will be stratified.
+
+``` julia
+to_graphviz(dom(seir_acst_augmented))
+```
+
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-8-output-1.svg)
+
+We can also visualize the transitions in the age model.
+
+``` julia
+to_graphviz(dom(age_acst_augmented), prog="circo")
+```
+
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-9-output-1.svg)
+
+We rename the transitions with their group, to avoid the use of the same
+name in the transitions for different age groups.
+
 ``` julia
 age_acst_tnames = dom(age_acst)[:tname]
 age_acst_snames = dom(age_acst)[:sname]
@@ -135,7 +156,7 @@ end
 dom(age_acst_augmented)[:tname] = age_acst_tnames;
 ```
 
-We can now compose the models using `typed_product`.
+We compose the models using `typed_product`.
 
 ``` julia
 seir_age_acst = typed_product(seir_acst_augmented, age_acst_augmented)
@@ -149,16 +170,33 @@ susceptible group, and the second to the infected group.
 to_graphviz(seir_age_lpn)
 ```
 
-![](pn_stratify_ageclasses_files/figure-commonmark/cell-10-output-1.svg)
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-12-output-1.svg)
 
 We flatten the labels to allow the model to be lowered into an ODE.
 
 ``` julia
 seir_age_lpn_flatlabels = flatten_labels(seir_age_lpn)
-to_graphviz(seir_age_lpn_flatlabels)
+to_graphviz(seir_age_lpn_flatlabels, prog="dot")
 ```
 
-![](pn_stratify_ageclasses_files/figure-commonmark/cell-11-output-1.svg)
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-13-output-1.svg)
+
+The transitions may be easier to inspect graphically if we represent the
+model as a bilayer network.
+
+``` julia
+seir_age_bn = LabelledBilayerNetwork()
+migrate!(seir_age_bn, seir_age_lpn_flatlabels)
+to_graphviz(seir_age_bn)
+```
+
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-14-output-1.svg)
+
+We can also retrieve the equations from the bilayer network.
+
+``` julia
+latexify(ModelingToolkit.equations(ODESystem(seir_age_bn)))
+```
 
 ## Running the model
 
@@ -294,7 +332,7 @@ plot(t, I_out, label="Infectious", ylim=(0,500000))
 plot!(t, E_out, label="Exposed")
 ```
 
-![](pn_stratify_ageclasses_files/figure-commonmark/cell-18-output-1.svg)
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-22-output-1.svg)
 
 ## Comparison to Epidemics.jl
 
@@ -327,7 +365,7 @@ plot(t, I_out, label="Infectious", ylim=(0,500000))
 plot!(t, E_out, label="Exposed")
 ```
 
-![](pn_stratify_ageclasses_files/figure-commonmark/cell-21-output-1.svg)
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-25-output-1.svg)
 
 ## Comparison to Epiverse epidemics package
 
@@ -394,7 +432,7 @@ epidemics_sol <- model_default(
 
     ┌ Warning: RCall.jl: Using POLYMOD social contact data. To cite this in a publication, use the 'cite' function
     │ Removing participants that have contacts without age information. To change this behaviour, set the 'missing.contact.age' option
-    └ @ RCall ~/.julia/packages/RCall/gOwEW/src/io.jl:172
+    └ @ RCall ~/.julia/packages/RCall/FEbLj/src/io.jl:172
 
 ``` julia
 @rget epidemics_sol;
@@ -411,4 +449,4 @@ epidemics_sol |>
              ylabel="Number")
 ```
 
-![](pn_stratify_ageclasses_files/figure-commonmark/cell-25-output-1.svg)
+![](pn_stratify_ageclasses_files/figure-commonmark/cell-29-output-1.svg)
